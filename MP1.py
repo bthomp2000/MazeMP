@@ -10,6 +10,8 @@ class State:
 	agentPosition = ()
 	dots = []
 	parent = None
+	pathCostSoFar = 0
+	heuristic = 0
 
 	def __init__(self):
 		self.dots = []
