@@ -40,8 +40,7 @@ def parseFiles():
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier):
-	return [] #List of states
-
+	frontier = [0,1,2,3,4]
 #Takes in a list of states and a strategy, returns the next state to 
 #explore based on that strategy
 def searchStrategy(states,strategy):
@@ -51,6 +50,7 @@ def printSolution(endNode):
 
 def treeSearch(strategy):
 	transition(start,frontier)
+	print(frontier)
 	while(len(frontier)>0):
 		node = searchStrategy(frontier,strategy)
 		if(len(node.dots)==0):
