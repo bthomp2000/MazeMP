@@ -51,9 +51,7 @@ def checkIfDot(state, x, y):
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier):
-	#take node list in
 	#find and add all unvisited neighbors
-	#remove from list
 	#return updated list
 	visited.append(state)
 	coords = state.agentPosition
@@ -61,9 +59,10 @@ def transition(state,frontier):
 	y = coords[1]
 
 	#always inside walls so dont need to check id in bounds
-	if(maze[x+1][y] and ):
+	if(maze[x+1][y]):
+		#create new stare at +/-1 position and check if it exists
 		checkIfDot(state, x+1, y)
-		frontier.append(State((x+1,y), state))
+		frontier.append())#fix here
 
 
 	frontier = [State()]
