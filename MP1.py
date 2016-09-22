@@ -38,10 +38,10 @@ def parseFiles():
 				elif line[j]=="P":
 					row.append(True)
 					start.agentPosition = (i,j)
-					visited.append((i,j))
+					visited.append(start)
 			maze.append(row)
 
-def removeIfDot(state, x, y):
+def removeDots(state, x, y):
 	for i in range(len(state.dots)):
 		if(state.dots[i] == (x,y)):
 			state.dots.remove((x,y))
@@ -53,6 +53,7 @@ def removeIfDot(state, x, y):
 def transition(state,frontier):
 	#find and add all unvisited neighbors
 	#return updated list
+	frontier.remove(state)
 	visited.append(state)
 	coords = state.agentPosition
 	x = coords[0]
@@ -60,14 +61,67 @@ def transition(state,frontier):
 
 	#always inside walls so dont need to check id in bounds
 	if(maze[x+1][y]):
-                for checkState in visited:
-                        if checkState.agentPosition == (x+1, y) and checkState.dots == 
-		#create new stare at +/-1 position and check if it exists
-		frontier.append())#fix here
+		newState = State((x+1,y),state.dots,state,state.pathCostSoFar+1)
+		removeDots(newState,x+1,y)
+		shouldAdd = True
+		for visitedState in visited:
+			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
+				shouldAdd = False
+		if shouldAdd:
+			frontier.append(newState)
+		for frontierState in frontier:
+			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
+				frontier.remove(frontierState)
+				frontier.append(newState)
+			
+
+
+	if(maze[x-1][y]):
+		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1)
+		removeDots(newState,x-1,y)
+		shouldAdd = True
+		for visitedState in visited:
+			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
+				shouldAdd = False
+		if shouldAdd:
+			frontier.append(newState)
+		for frontierState in frontier:
+			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
+				frontier.remove(frontierState)
+				frontier.append(newState)
+
+
+	if(maze[x][y+1]):
+		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
+		removeDots(newState,x,y+1)
+		shouldAdd = True
+		for visitedState in visited:
+			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
+				shouldAdd = False
+		if shouldAdd:
+			frontier.append(newState)
+		for frontierState in frontier:
+			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
+				frontier.remove(frontierState)
+				frontier.append(newState)
+
+
+	if(maze[x][y-1]):
+		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
+		removeDots(newState,x,y-1)
+		shouldAdd = True
+		for visitedState in visited:
+			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
+				shouldAdd = False
+		if shouldAdd:
+			frontier.append(newState)
+		for frontierState in frontier:
+			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
+				frontier.remove(frontierState)
+				frontier.append(newState)
 		
 
 
-	frontier = [State()]
 	return frontier
 
 #Takes in a list of states and a strategy, returns the next state to 
