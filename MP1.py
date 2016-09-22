@@ -126,8 +126,16 @@ def transition(state,frontier):
 
 #Takes in a list of states and a strategy, returns the next state to 
 #explore based on that strategy
-def searchStrategy(states,strategy):
-	return states[0]
+def searchStrategy(frontier, strategy):
+        if strategy == Strategy.BFS:
+                return frontier[0]
+        else if strategy == Strategy.DFS:
+                return frontier[len(frontier)-1]
+        else if strategy == Strategy.Greedy:
+                return frontier[0] #TODO: Implement greedy
+        else if strategy == Strategy.Astar:
+                return frontier[0] #TODO: Implement A star
+	return frontier[0]
 
 def printSolution(endNode):
 	return None
