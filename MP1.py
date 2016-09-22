@@ -15,7 +15,7 @@ class State:
 
 	def __init__(self, agentPosition=None, dots=[], state=None, pathCostSoFar=0, heuristic=0):
 		self.agentPosition = agentPosition
-		self.dots = dots
+		self.dots = list(dots)
 		self.parent = state
 		self.pathCostSoFar = pathCostSoFar
 		self.heuristic = heuristic
@@ -66,13 +66,11 @@ def transition(state,frontier):
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
 				shouldAdd = False
+		for frontierState in frontier:
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
+				frontier.remove(frontierState)
 		if shouldAdd:
 			frontier.append(newState)
-		for frontierState in frontier:
-			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
-				frontier.remove(frontierState)
-				frontier.append(newState)	
-
 
 	if(maze[x-1][y]):
 		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1)
@@ -81,12 +79,11 @@ def transition(state,frontier):
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
 				shouldAdd = False
+		for frontierState in frontier:
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
+				frontier.remove(frontierState)
 		if shouldAdd:
 			frontier.append(newState)
-		for frontierState in frontier:
-			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
-				frontier.remove(frontierState)
-				frontier.append(newState)
 
 	if(maze[x][y+1]):
 		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
@@ -95,12 +92,11 @@ def transition(state,frontier):
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
 				shouldAdd = False
+		for frontierState in frontier:
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
+				frontier.remove(frontierState)
 		if shouldAdd:
 			frontier.append(newState)
-		for frontierState in frontier:
-			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
-				frontier.remove(frontierState)
-				frontier.append(newState)
 
 	if(maze[x][y-1]):
 		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
@@ -109,12 +105,11 @@ def transition(state,frontier):
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
 				shouldAdd = False
+		for frontierState in frontier:
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
+				frontier.remove(frontierState)
 		if shouldAdd:
 			frontier.append(newState)
-		for frontierState in frontier:
-			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
-				frontier.remove(frontierState)
-				frontier.append(newState)
 
 	return frontier
 
@@ -122,13 +117,13 @@ def transition(state,frontier):
 #explore based on that strategy
 def searchStrategy(frontier, strategy):
         if strategy == Strategy.BFS:
-                return frontier[0]
+            return frontier[0]
         elif strategy == Strategy.DFS:
-                return frontier[len(frontier)-1]
+            return frontier[len(frontier)-1]
         elif strategy == Strategy.Greedy:
-                return frontier[0] #TODO: Implement greedy
+            return frontier[0] #TODO: Implement greedy
         elif strategy == Strategy.Astar:
-                return frontier[0] #TODO: Implement A star
+            return frontier[0] #TODO: Implement A star
 	return frontier[0]
 
 def printSolution(endNode):
@@ -163,4 +158,4 @@ def treeSearch(strategy):
 			frontier = transition(node,frontier)
 
 parseFiles()
-treeSearch(Strategy.BFS)
+treeSearch(Strategy.DFS)
