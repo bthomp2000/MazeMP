@@ -45,6 +45,7 @@ def removeDots(state, x, y):
 	for i in range(len(state.dots)):
 		if(state.dots[i] == (x,y)):
 			state.dots.remove((x,y))
+			print start.dots
 			return True
 	return False
 
