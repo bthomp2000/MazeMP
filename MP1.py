@@ -35,6 +35,7 @@ def parseFiles():
 				elif line[j]==".":
 					row.append(True)
 					start.dots.append((i,j))
+					print"dot init: ", i , j
 				elif line[j]=="P":
 					row.append(True)
 					start.agentPosition = (i,j)
@@ -129,16 +130,37 @@ def transition(state,frontier):
 def searchStrategy(frontier, strategy):
         if strategy == Strategy.BFS:
                 return frontier[0]
-        else if strategy == Strategy.DFS:
+        elif strategy == Strategy.DFS:
                 return frontier[len(frontier)-1]
-        else if strategy == Strategy.Greedy:
+        elif strategy == Strategy.Greedy:
                 return frontier[0] #TODO: Implement greedy
-        else if strategy == Strategy.Astar:
+        elif strategy == Strategy.Astar:
                 return frontier[0] #TODO: Implement A star
 	return frontier[0]
 
 def printSolution(endNode):
-	return None
+	#create char array
+	#backtrace putting . in where node is
+	#print out maze
+
+	currentNode = endNode
+	print endNode.agentPosition
+	while(currentNode!=start):
+		position = currentNode.agentPosition
+		x = position[0]
+		y = position[1]
+		maze[x][y] = "."
+		currentNode = currentNode.parent
+
+	for i in range(len(maze)):
+		for j in range(len(maze[0])):
+			if maze[i][j] == True:
+				print " ",
+			elif maze[i][j] == False:
+				print "%",
+			else:
+				print ".",
+		print("")
 
 def treeSearch(strategy):
 	frontier = [start]
