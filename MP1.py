@@ -48,5 +48,4 @@ def transition(state):
 def searchStrategy(states,strategy):
 	return states[0]
 
-
 parseFiles()
