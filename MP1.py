@@ -24,7 +24,7 @@ visited = []
 maze = []
 start = State()
 def parseFiles():
-	with open('mediumMaze.txt') as input_file:
+	with open('tinySearch.txt') as input_file:
 		for i, line in enumerate(input_file):
 			row = []
 			for j in range(len(line)):
