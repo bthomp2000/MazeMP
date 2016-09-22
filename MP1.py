@@ -13,8 +13,12 @@ class State:
 	pathCostSoFar = 0
 	heuristic = 0
 
-	def __init__(self):
-		self.dots = []
+	def __init__(self, agentPosition=None, dots=[], state=None, pathCostSoFar=0, heuristic=0):
+		self.agentPosition = agentPosition
+		self.dots = dots
+		self.parent = state
+		self.pathCostSoFar = pathCostSoFar
+		self.heuristic = heuristic
 
 visited = []
 maze = []
@@ -37,26 +41,52 @@ def parseFiles():
 					visited.append((i,j))
 			maze.append(row)
 
+def checkIfDot(state, x, y):
+	for i in range(len(state.dots)):
+		if(state.dots[i] == (x,y)):
+			state.dots.remove((x,y))
+			return True
+	return False
+
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier):
-	frontier = [0,1,2,3,4]
+	#take node list in
+	#find and add all unvisited neighbors
+	#remove from list
+	#return updated list
+	visited.append(state)
+	coords = state.agentPosition
+	x = coords[0]
+	y = coords[1]
+
+	#always inside walls so dont need to check id in bounds
+	if(maze[x+1][y] and ):
+		checkIfDot(state, x+1, y)
+		frontier.append(State((x+1,y), state))
+
+
+	frontier = [State()]
+	return frontier
+
 #Takes in a list of states and a strategy, returns the next state to 
 #explore based on that strategy
 def searchStrategy(states,strategy):
 	return states[0]
 
 def printSolution(endNode):
+	return None
 
 def treeSearch(strategy):
-	transition(start,frontier)
-	print(frontier)
+	frontier = [start]
+	frontier = transition(start,frontier)
 	while(len(frontier)>0):
 		node = searchStrategy(frontier,strategy)
 		if(len(node.dots)==0):
 			printSolution(node)
 			break
 		else:
-			transition(node,frontier)
+			frontier = transition(node,frontier)
 
 parseFiles()
+treeSearch(Strategy.BFS)
