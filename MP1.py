@@ -35,7 +35,6 @@ def parseFiles():
 				elif line[j]==".":
 					row.append(True)
 					start.dots.append((i,j))
-					print"dot init: ", i , j
 				elif line[j]=="P":
 					row.append(True)
 					start.agentPosition = (i,j)
@@ -52,8 +51,6 @@ def removeDots(state, x, y):
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier):
-	#find and add all unvisited neighbors
-	#return updated list
 	frontier.remove(state)
 	visited.append(state)
 	coords = state.agentPosition
@@ -73,8 +70,7 @@ def transition(state,frontier):
 		for frontierState in frontier:
 			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
 				frontier.remove(frontierState)
-				frontier.append(newState)
-			
+				frontier.append(newState)	
 
 
 	if(maze[x-1][y]):
@@ -91,7 +87,6 @@ def transition(state,frontier):
 				frontier.remove(frontierState)
 				frontier.append(newState)
 
-
 	if(maze[x][y+1]):
 		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
 		removeDots(newState,x,y+1)
@@ -106,7 +101,6 @@ def transition(state,frontier):
 				frontier.remove(frontierState)
 				frontier.append(newState)
 
-
 	if(maze[x][y-1]):
 		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
 		removeDots(newState,x,y-1)
@@ -120,8 +114,6 @@ def transition(state,frontier):
 			if frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
 				frontier.remove(frontierState)
 				frontier.append(newState)
-		
-
 
 	return frontier
 
@@ -139,10 +131,6 @@ def searchStrategy(frontier, strategy):
 	return frontier[0]
 
 def printSolution(endNode):
-	#create char array
-	#backtrace putting . in where node is
-	#print out maze
-
 	currentNode = endNode
 	print endNode.agentPosition
 	while(currentNode!=start):
