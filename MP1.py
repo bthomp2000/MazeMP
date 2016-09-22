@@ -41,7 +41,7 @@ def parseFiles():
 					visited.append((i,j))
 			maze.append(row)
 
-def checkIfDot(state, x, y):
+def removeIfDot(state, x, y):
 	for i in range(len(state.dots)):
 		if(state.dots[i] == (x,y)):
 			state.dots.remove((x,y))
@@ -60,9 +60,11 @@ def transition(state,frontier):
 
 	#always inside walls so dont need to check id in bounds
 	if(maze[x+1][y]):
+                for checkState in visited:
+                        if checkState.agentPosition == (x+1, y) and checkState.dots == 
 		#create new stare at +/-1 position and check if it exists
-		checkIfDot(state, x+1, y)
 		frontier.append())#fix here
+		
 
 
 	frontier = [State()]
