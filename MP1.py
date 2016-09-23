@@ -24,7 +24,7 @@ visited = []
 maze = []
 start = State()
 def parseFiles():
-	with open('tinySearch.txt') as input_file:
+	with open('openMaze.txt') as input_file:
 		for i, line in enumerate(input_file):
 			row = []
 			for j in range(len(line)):
@@ -156,4 +156,4 @@ def treeSearch(strategy):
 			frontier = transition(node,frontier)
 
 parseFiles()
-treeSearch(Strategy.BFS)
+treeSearch(Strategy.DFS)
