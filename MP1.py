@@ -45,7 +45,6 @@ def removeDots(state, x, y):
 	for i in range(len(state.dots)):
 		if(state.dots[i] == (x,y)):
 			state.dots.remove((x,y))
-			print start.dots
 			return True
 	return False
 
@@ -128,7 +127,6 @@ def searchStrategy(frontier, strategy):
 
 def printSolution(endNode):
 	currentNode = endNode
-	print endNode.agentPosition
 	while(currentNode!=start):
 		position = currentNode.agentPosition
 		x = position[0]
@@ -158,4 +156,4 @@ def treeSearch(strategy):
 			frontier = transition(node,frontier)
 
 parseFiles()
-treeSearch(Strategy.BFS)
+treeSearch(Strategy.DFS)
