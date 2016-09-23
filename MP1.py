@@ -48,12 +48,15 @@ def removeDots(state, x, y):
 			return True
 	return False
 
+
+#print "frontpos: ", frontierState.agentPosition, "newpos: ", newState.agentPosition, "frontierstate path: ", frontierState.pathCostSoFar , "newState path: " , newState.pathCostSoFar
+
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier):
 	frontier.remove(state)
-	if state not in visited:
-		visited.append(state)
+	visited.append(state)
+
 	coords = state.agentPosition
 	x = coords[0]
 	y = coords[1]
@@ -65,9 +68,13 @@ def transition(state,frontier):
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
 				shouldAdd = False
-		for frontierState in frontier:
-			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
-				frontier.remove(frontierState)
+		for i in range(len(frontier)):
+			frontierState = frontier[i]
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots:
+				if newState.pathCostSoFar < frontierState.pathCostSoFar:
+					frontier[i]=newState
+				else:
+					shouldAdd = False
 		if shouldAdd:
 			frontier.append(newState)
 		removeDots(newState,x+1,y)
@@ -78,9 +85,13 @@ def transition(state,frontier):
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
 				shouldAdd = False
-		for frontierState in frontier:
-			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
-				frontier.remove(frontierState)
+		for i in range(len(frontier)):
+			frontierState = frontier[i]
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots:
+				if newState.pathCostSoFar < frontierState.pathCostSoFar:
+					frontier[i]=newState
+				else:
+					shouldAdd = False
 		if shouldAdd:
 			frontier.append(newState)
 		removeDots(newState,x-1,y)
@@ -91,9 +102,13 @@ def transition(state,frontier):
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
 				shouldAdd = False
-		for frontierState in frontier:
-			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
-				frontier.remove(frontierState)
+		for i in range(len(frontier)):
+			frontierState = frontier[i]
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots:
+				if newState.pathCostSoFar < frontierState.pathCostSoFar:
+					frontier[i]=newState
+				else:
+					shouldAdd = False
 		if shouldAdd:
 			frontier.append(newState)
 		removeDots(newState,x,y+1)
@@ -104,9 +119,13 @@ def transition(state,frontier):
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
 				shouldAdd = False
-		for frontierState in frontier:
-			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots and newState.pathCostSoFar < frontierState.pathCostSoFar:
-				frontier.remove(frontierState)
+		for i in range(len(frontier)):
+			frontierState = frontier[i]
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots:
+				if newState.pathCostSoFar < frontierState.pathCostSoFar:
+					frontier[i]=newState
+				else:
+					shouldAdd = False
 		if shouldAdd:
 			frontier.append(newState)
 		removeDots(newState,x,y-1)
@@ -135,11 +154,11 @@ def printSolution(endNode):
 		maze[x][y] = "."
 		currentNode = currentNode.parent
 
-	for i in range(len(maze)):
-		for j in range(len(maze[0])):
-			if maze[i][j] == True:
+	for row in maze:
+		for value in row:
+			if value == True:
 				print " ",
-			elif maze[i][j] == False:
+			elif value == False:
 				print "%",
 			else:
 				print ".",
