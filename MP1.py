@@ -48,8 +48,19 @@ def removeDots(state, x, y):
 			return True
 	return False
 
-
-#print "frontpos: ", frontierState.agentPosition, "newpos: ", newState.agentPosition, "frontierstate path: ", frontierState.pathCostSoFar , "newState path: " , newState.pathCostSoFar
+def manhattanHeuristic(state):
+	heuristic = 0
+	coords = state.agentPosition
+	dot = state.dots[0]
+	if(len(dot)==0):
+		heuristic = 0
+	else:
+		goal_x = dot[0]
+		goal_y = dot[1]
+		state_x = coords[0]
+		state_y = coords[1]
+		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
+	return heuristic
 
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
@@ -64,6 +75,7 @@ def transition(state,frontier):
 	#always inside walls so dont need to check id in bounds
 	if(maze[x+1][y]):
 		newState = State((x+1,y),state.dots,state,state.pathCostSoFar+1)
+		newState.heuristic = manhattanHeuristic(newState)
 		removeDots(newState,x+1,y)
 		shouldAdd = True
 		for visitedState in visited:
@@ -81,6 +93,7 @@ def transition(state,frontier):
 
 	if(maze[x-1][y]):
 		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1)
+		newState.heuristic = manhattanHeuristic(newState)
 		removeDots(newState,x-1,y)
 		shouldAdd = True
 		for visitedState in visited:
@@ -98,6 +111,7 @@ def transition(state,frontier):
 
 	if(maze[x][y+1]):
 		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
+		newState.heuristic = manhattanHeuristic(newState)
 		removeDots(newState,x,y+1)
 		shouldAdd = True
 		for visitedState in visited:
@@ -115,6 +129,7 @@ def transition(state,frontier):
 
 	if(maze[x][y-1]):
 		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
+		newState.heuristic = manhattanHeuristic(newState)
 		removeDots(newState,x,y-1)
 		shouldAdd = True
 		for visitedState in visited:
@@ -135,14 +150,22 @@ def transition(state,frontier):
 #Takes in a list of states and a strategy, returns the next state to 
 #explore based on that strategy
 def searchStrategy(frontier, strategy):
-        if strategy == Strategy.BFS:
-            return frontier[0]
-        elif strategy == Strategy.DFS:
-            return frontier[len(frontier)-1]
-        elif strategy == Strategy.Greedy:
-            return frontier[0] #TODO: Implement greedy
-        elif strategy == Strategy.Astar:
-            return frontier[0] #TODO: Implement A star
+	if strategy == Strategy.BFS:
+		return frontier[0]
+	elif strategy == Strategy.DFS:
+		return frontier[len(frontier)-1]
+	elif strategy == Strategy.Greedy:
+		minNode = frontier[0]
+		for f in frontier:
+			if f.heuristic < minNode.heuristic:
+				minNode = f
+		return minNode
+	elif strategy == Strategy.Astar:
+		minNode = frontier[0]
+		for f in frontier:
+			if f.heuristic + f.pathCostSoFar < minNode.heuristic + minNode.pathCostSoFar:
+				minNode = f
+		return minNode
 	return frontier[0]
 
 def printSolution(endNode):
@@ -165,6 +188,7 @@ def printSolution(endNode):
 		print("")
 
 def treeSearch(strategy):
+	start.heuristic = manhattanHeuristic(start)
 	frontier = [start]
 	frontier = transition(start,frontier)
 	while(len(frontier)>0):
@@ -176,4 +200,4 @@ def treeSearch(strategy):
 			frontier = transition(node,frontier)
 
 parseFiles()
-treeSearch(Strategy.BFS)
+treeSearch(Strategy.Astar)
