@@ -52,15 +52,15 @@ def removeDots(state, x, y):
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier):
 	frontier.remove(state)
-	visited.append(state)
+	if state not in visited:
+		visited.append(state)
 	coords = state.agentPosition
 	x = coords[0]
 	y = coords[1]
 
 	#always inside walls so dont need to check id in bounds
 	if(maze[x+1][y]):
-		newState = State((x+1,y),state.dots,state,state.pathCostSoFar+1)
-		removeDots(newState,x+1,y)
+		newState = State((x+1,y),state.dots,state,state.pathCostSoFar+1, 0)
 		shouldAdd = True
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
@@ -70,10 +70,10 @@ def transition(state,frontier):
 				frontier.remove(frontierState)
 		if shouldAdd:
 			frontier.append(newState)
+		removeDots(newState,x+1,y)
 
 	if(maze[x-1][y]):
-		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1)
-		removeDots(newState,x-1,y)
+		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1, 0)
 		shouldAdd = True
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
@@ -83,10 +83,10 @@ def transition(state,frontier):
 				frontier.remove(frontierState)
 		if shouldAdd:
 			frontier.append(newState)
+		removeDots(newState,x-1,y)
 
 	if(maze[x][y+1]):
-		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
-		removeDots(newState,x,y+1)
+		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1, 0)
 		shouldAdd = True
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
@@ -96,10 +96,10 @@ def transition(state,frontier):
 				frontier.remove(frontierState)
 		if shouldAdd:
 			frontier.append(newState)
+		removeDots(newState,x,y+1)
 
 	if(maze[x][y-1]):
-		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
-		removeDots(newState,x,y-1)
+		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1, 0)
 		shouldAdd = True
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
@@ -109,6 +109,7 @@ def transition(state,frontier):
 				frontier.remove(frontierState)
 		if shouldAdd:
 			frontier.append(newState)
+		removeDots(newState,x,y-1)
 
 	return frontier
 
