@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 
 class Strategy(Enum):
@@ -24,7 +25,7 @@ visited = []
 maze = []
 start = State()
 def parseFiles():
-	with open('openMaze.txt') as input_file:
+	with open('1.1_Mazes/mediumMaze.txt') as input_file:
 		for i, line in enumerate(input_file):
 			row = []
 			for j in range(len(line)):
@@ -62,6 +63,7 @@ def manhattanHeuristic(state):
 		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
 	return heuristic
 
+
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier):
@@ -90,7 +92,6 @@ def transition(state,frontier):
 					shouldAdd = False
 		if shouldAdd:
 			frontier.append(newState)
-		removeDots(newState,x+1,y)
 
 	if(maze[x-1][y]):
 		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1)
@@ -109,7 +110,6 @@ def transition(state,frontier):
 					shouldAdd = False
 		if shouldAdd:
 			frontier.append(newState)
-		removeDots(newState,x-1,y)
 
 	if(maze[x][y+1]):
 		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
@@ -128,7 +128,6 @@ def transition(state,frontier):
 					shouldAdd = False
 		if shouldAdd:
 			frontier.append(newState)
-		removeDots(newState,x,y+1)
 
 	if(maze[x][y-1]):
 		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
@@ -147,7 +146,6 @@ def transition(state,frontier):
 					shouldAdd = False
 		if shouldAdd:
 			frontier.append(newState)
-		removeDots(newState,x,y-1)
 
 	return frontier
 
@@ -204,4 +202,6 @@ def treeSearch(strategy):
 			frontier = transition(node,frontier)
 
 parseFiles()
-treeSearch(Strategy.Astar)
+start_time = time.time()
+treeSearch(Strategy.BFS)
+print("--- %s seconds ---" % (time.time() - start_time))
