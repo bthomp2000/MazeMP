@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 
 class Strategy(Enum):
@@ -24,7 +25,7 @@ visited = []
 maze = []
 start = State()
 def parseFiles():
-	with open('openMaze.txt') as input_file:
+	with open('1.1_Mazes/mediumMaze.txt') as input_file:
 		for i, line in enumerate(input_file):
 			row = []
 			for j in range(len(line)):
@@ -61,6 +62,7 @@ def manhattanHeuristic(state):
 		state_y = coords[1]
 		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
 	return heuristic
+
 
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
@@ -200,4 +202,6 @@ def treeSearch(strategy):
 			frontier = transition(node,frontier)
 
 parseFiles()
-treeSearch(Strategy.Astar)
+start_time = time.time()
+treeSearch(Strategy.BFS)
+print("--- %s seconds ---" % (time.time() - start_time))
