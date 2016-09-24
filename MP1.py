@@ -25,7 +25,7 @@ visited = []
 maze = []
 start = State()
 def parseFiles():
-	with open('1.1_Mazes/mediumMaze.txt') as input_file:
+	with open('1.2_Mazes/tinySearch.txt') as input_file:
 		for i, line in enumerate(input_file):
 			row = []
 			for j in range(len(line)):
@@ -170,7 +170,7 @@ def searchStrategy(frontier, strategy):
 		return minNode
 	return frontier[0]
 
-def printSolution(endNode):
+def printSolutionMaze(endNode):
 	currentNode = endNode
 	while(currentNode!=start):
 		position = currentNode.agentPosition
@@ -189,6 +189,36 @@ def printSolution(endNode):
 				print ".",
 		print("")
 
+def printSolutionSearch(endNode):
+	pathCounter = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+
+	#get how many dots there are
+	#work way back and pace dots
+	#???
+	#profit
+
+	numdots = len(start.dots)
+
+	currentNode = endNode
+	while(currentNode!=start):
+		position = currentNode.agentPosition
+		x = position[0]
+		y = position[1]
+		if(len(currentNode.parent.dots)!=len(currentNode.dots)):
+			maze[x][y] = pathCounter[numdots]
+			numdots-=1
+		currentNode = currentNode.parent
+
+	for row in maze:
+		for value in row:
+			if value == True:
+				print " ",
+			elif value == False:
+				print "%",
+			else:
+				print value,
+		print("")
+
 def treeSearch(strategy):
 	start.heuristic = manhattanHeuristic(start)
 	frontier = [start]
@@ -196,12 +226,12 @@ def treeSearch(strategy):
 	while(len(frontier)>0):
 		node = searchStrategy(frontier,strategy)
 		if(len(node.dots)==0):
-			printSolution(node)
+			printSolutionSearch(node)
 			break
 		else:
 			frontier = transition(node,frontier)
 
 parseFiles()
 start_time = time.time()
-treeSearch(Strategy.BFS)
+treeSearch(Strategy.Astar)
 print("--- %s seconds ---" % (time.time() - start_time))
