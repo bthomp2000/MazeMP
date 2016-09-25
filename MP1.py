@@ -25,7 +25,7 @@ visited = []
 maze = []
 start = State()
 def parseFiles():
-	with open('1.2_Mazes/smallSearch.txt') as input_file:
+	with open('1.2_Mazes/tinySearch.txt') as input_file:
 		for i, line in enumerate(input_file):
 			row = []
 			for j in range(len(line)):
@@ -55,6 +55,20 @@ def Equals(list1, list2):
 			return False
 	return True
 
+def closestPathDot(state):
+	global visited
+	frontier = [state]
+	tempVisited = list(visited)
+	numGoals = len(state.dots)
+	frontier = transition(state,frontier,Strategy.BFS)
+	while(len(frontier)>0):
+		node = searchStrategy(frontier,Strategy.BFS)
+		if(len(node.dots)<numGoals):
+			visited = list(tempVisited)
+			return node.agentPosition
+		else:
+			frontier = transition(node,frontier,Strategy.BFS)
+
 def manhattanHeuristic(state):
 	heuristic = 0
 	coords = state.agentPosition
@@ -70,7 +84,7 @@ def manhattanHeuristic(state):
 	return heuristic
 
 #sets heuristic as the manhattan distance to the center of the 
-#average dots coordinate
+#average dots coordinate. Attempt 1
 def multipleDotAverage(state):
 	heuristic = 0
 	coords = state.agentPosition
@@ -90,6 +104,7 @@ def multipleDotAverage(state):
 		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
 	return heuristic
 
+#Attempt 2
 def multipleDotClosestDot(state):
 	heuristic = 0
 	coords = state.agentPosition
@@ -111,9 +126,26 @@ def multipleDotClosestDot(state):
 		heuristic = minDistance
 	return heuristic
 
+# Attempt 3
+def shortestPathDot(state):
+	heuristic = 0
+	coords = state.agentPosition
+	numDots = len(state.dots)
+	if(numDots==0 or coords == state.dots[0]):
+		heuristic = 0
+	else:
+		goal = closestPathDot(state)
+		goal_x = goal[0]
+		goal_y = goal[1]
+		state_x = coords[0]
+		state_y = coords[1]
+		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
+	return heuristic
+
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
-def transition(state,frontier):
+def transition(state,frontier,strategy):
+	global visited
 	frontier.remove(state)
 	visited.append(state)
 
@@ -124,7 +156,8 @@ def transition(state,frontier):
 	#always inside walls so dont need to check id in bounds
 	if(maze[x+1][y]):
 		newState = State((x+1,y),state.dots,state,state.pathCostSoFar+1)
-		newState.heuristic = multipleDotClosestDot(newState) + multipleDotAverage(newState)
+		if(strategy==Strategy.Greedy or strategy==Strategy.Astar):
+			newState.heuristic = shortestPathDot(newState)
 		removeDots(newState,x+1,y)
 		shouldAdd = True
 		for visitedState in visited:
@@ -142,7 +175,8 @@ def transition(state,frontier):
 
 	if(maze[x-1][y]):
 		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1)
-		newState.heuristic = multipleDotClosestDot(newState) + multipleDotAverage(newState)
+		if(strategy==Strategy.Greedy or strategy==Strategy.Astar):
+			newState.heuristic = shortestPathDot(newState)
 		removeDots(newState,x-1,y)
 		shouldAdd = True
 		for visitedState in visited:
@@ -160,7 +194,8 @@ def transition(state,frontier):
 
 	if(maze[x][y+1]):
 		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
-		newState.heuristic = multipleDotClosestDot(newState) + multipleDotAverage(newState)
+		if(strategy==Strategy.Greedy or strategy==Strategy.Astar):
+			newState.heuristic = shortestPathDot(newState)
 		removeDots(newState,x,y+1)
 		shouldAdd = True
 		for visitedState in visited:
@@ -178,7 +213,8 @@ def transition(state,frontier):
 
 	if(maze[x][y-1]):
 		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
-		newState.heuristic = multipleDotClosestDot(newState) + multipleDotAverage(newState)
+		if(strategy==Strategy.Greedy or strategy==Strategy.Astar):
+			newState.heuristic = shortestPathDot(newState)
 		removeDots(newState,x,y-1)
 		shouldAdd = True
 		for visitedState in visited:
@@ -267,18 +303,19 @@ def printSolutionSearch(endNode):
 		print("")
 
 def treeSearch(strategy):
-	start.heuristic = multipleDotClosestDot(start) + multipleDotAverage(start)
+	global start
+	start.heuristic = shortestPathDot(start)
 	frontier = [start]
-	frontier = transition(start,frontier)
+	frontier = transition(start,frontier,strategy)
 	while(len(frontier)>0):
 		node = searchStrategy(frontier,strategy)
 		if(len(node.dots)==0):
 			printSolutionSearch(node)
 			break
 		else:
-			frontier = transition(node,frontier)
+			frontier = transition(node,frontier,strategy)
 
 parseFiles()
 start_time = time.time()
-treeSearch(Strategy.Astar)
+treeSearch(Strategy.Greedy)
 print("--- %s seconds ---" % (time.time() - start_time))
