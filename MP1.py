@@ -59,13 +59,16 @@ def closestPathDot(state):
 	global visited
 	frontier = [state]
 	tempVisited = list(visited)
+	visited = []
 	numGoals = len(state.dots)
 	frontier = transition(state,frontier,Strategy.BFS)
+	pathLength = 0
 	while(len(frontier)>0):
 		node = searchStrategy(frontier,Strategy.BFS)
+		pathLength+=1
 		if(len(node.dots)<numGoals):
 			visited = list(tempVisited)
-			return node.agentPosition
+			return pathLength
 		else:
 			frontier = transition(node,frontier,Strategy.BFS)
 
@@ -134,18 +137,12 @@ def shortestPathDot(state):
 	if(numDots==0 or coords == state.dots[0]):
 		heuristic = 0
 	else:
-		goal = closestPathDot(state)
-		goal_x = goal[0]
-		goal_y = goal[1]
-		state_x = coords[0]
-		state_y = coords[1]
-		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
+		heuristic = closestPathDot(state)
 	return heuristic
 
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier,strategy):
-	global visited
 	frontier.remove(state)
 	visited.append(state)
 
