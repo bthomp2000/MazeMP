@@ -25,7 +25,7 @@ visited = []
 maze = []
 start = State()
 def parseFiles():
-	with open('1.2_Mazes/tinySearch.txt') as input_file:
+	with open('1.2_Mazes/smallSearch.txt') as input_file:
 		for i, line in enumerate(input_file):
 			row = []
 			for j in range(len(line)):
@@ -49,6 +49,12 @@ def removeDots(state, x, y):
 			return True
 	return False
 
+def Equals(list1, list2):
+	for val in list1:
+		if val not in list2:
+			return False
+	return True
+
 def manhattanHeuristic(state):
 	heuristic = 0
 	coords = state.agentPosition
@@ -63,6 +69,47 @@ def manhattanHeuristic(state):
 		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
 	return heuristic
 
+#sets heuristic as the manhattan distance to the center of the 
+#average dots coordinate
+def multipleDotAverage(state):
+	heuristic = 0
+	coords = state.agentPosition
+	state_x = coords[0]
+	state_y = coords[1]
+	goal_x = 0
+	goal_y = 0
+	numDots = len(state.dots)
+	if(numDots==0):
+		heuristic = 0
+	else:
+		for dot in state.dots:
+			goal_x+=dot[0]
+			goal_y+=dot[1]
+		goal_x/=numDots
+		goal_y/=numDots
+		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
+	return heuristic
+
+def multipleDotClosestDot(state):
+	heuristic = 0
+	coords = state.agentPosition
+	state_x = coords[0]
+	state_y = coords[1]
+	goal_x = 0
+	goal_y = 0
+	numDots = len(state.dots)
+	if(numDots==0):
+		heuristic = 0
+	else:
+		minDistance = abs(state.dots[0][1]-state_y)+abs(state.dots[0][0]-state_x)
+		for dot in state.dots:
+			goal_x = dot[0]
+			goal_y = dot[1]
+			distance = abs(goal_y-state_y)+abs(goal_x-state_x)
+			if(distance < minDistance):
+				minDistance = distance
+		heuristic = minDistance
+	return heuristic
 
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
@@ -77,15 +124,15 @@ def transition(state,frontier):
 	#always inside walls so dont need to check id in bounds
 	if(maze[x+1][y]):
 		newState = State((x+1,y),state.dots,state,state.pathCostSoFar+1)
-		newState.heuristic = manhattanHeuristic(newState)
+		newState.heuristic = multipleDotClosestDot(newState) + multipleDotAverage(newState)
 		removeDots(newState,x+1,y)
 		shouldAdd = True
 		for visitedState in visited:
-			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
+			if visitedState.agentPosition == newState.agentPosition and Equals(visitedState.dots, newState.dots):
 				shouldAdd = False
 		for i in range(len(frontier)):
 			frontierState = frontier[i]
-			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots:
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and Equals(frontierState.dots, newState.dots):
 				if newState.pathCostSoFar < frontierState.pathCostSoFar:
 					frontier[i]=newState
 				else:
@@ -95,15 +142,15 @@ def transition(state,frontier):
 
 	if(maze[x-1][y]):
 		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1)
-		newState.heuristic = manhattanHeuristic(newState)
+		newState.heuristic = multipleDotClosestDot(newState) + multipleDotAverage(newState)
 		removeDots(newState,x-1,y)
 		shouldAdd = True
 		for visitedState in visited:
-			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
+			if visitedState.agentPosition == newState.agentPosition and Equals(visitedState.dots, newState.dots):
 				shouldAdd = False
 		for i in range(len(frontier)):
 			frontierState = frontier[i]
-			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots:
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and Equals(frontierState.dots, newState.dots):
 				if newState.pathCostSoFar < frontierState.pathCostSoFar:
 					frontier[i]=newState
 				else:
@@ -113,15 +160,15 @@ def transition(state,frontier):
 
 	if(maze[x][y+1]):
 		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
-		newState.heuristic = manhattanHeuristic(newState)
+		newState.heuristic = multipleDotClosestDot(newState) + multipleDotAverage(newState)
 		removeDots(newState,x,y+1)
 		shouldAdd = True
 		for visitedState in visited:
-			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
+			if visitedState.agentPosition == newState.agentPosition and Equals(visitedState.dots, newState.dots):
 				shouldAdd = False
 		for i in range(len(frontier)):
 			frontierState = frontier[i]
-			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots:
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and Equals(frontierState.dots, newState.dots):
 				if newState.pathCostSoFar < frontierState.pathCostSoFar:
 					frontier[i]=newState
 				else:
@@ -131,15 +178,15 @@ def transition(state,frontier):
 
 	if(maze[x][y-1]):
 		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
-		newState.heuristic = manhattanHeuristic(newState)
+		newState.heuristic = multipleDotClosestDot(newState) + multipleDotAverage(newState)
 		removeDots(newState,x,y-1)
 		shouldAdd = True
 		for visitedState in visited:
-			if visitedState.agentPosition == newState.agentPosition and visitedState.dots == newState.dots:
+			if visitedState.agentPosition == newState.agentPosition and Equals(visitedState.dots, newState.dots):
 				shouldAdd = False
 		for i in range(len(frontier)):
 			frontierState = frontier[i]
-			if shouldAdd and frontierState.agentPosition == newState.agentPosition and frontierState.dots == newState.dots:
+			if shouldAdd and frontierState.agentPosition == newState.agentPosition and Equals(frontierState.dots, newState.dots):
 				if newState.pathCostSoFar < frontierState.pathCostSoFar:
 					frontier[i]=newState
 				else:
@@ -220,7 +267,7 @@ def printSolutionSearch(endNode):
 		print("")
 
 def treeSearch(strategy):
-	start.heuristic = manhattanHeuristic(start)
+	start.heuristic = multipleDotClosestDot(start) + multipleDotAverage(start)
 	frontier = [start]
 	frontier = transition(start,frontier)
 	while(len(frontier)>0):
