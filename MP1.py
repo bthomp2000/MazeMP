@@ -23,9 +23,10 @@ class State:
 
 visited = []
 maze = []
+PathCosts = {} #(state_x,state_y): [{(goal_x1,goal_y1):pathcost1, (goal_x2,goal_y2):pathcost2},(minGoal_x,minGoal_y)]
 start = State()
 def parseFiles():
-	with open('1.2_Mazes/tinySearch.txt') as input_file:
+	with open('1.2_Mazes/mediumSearch.txt') as input_file:
 		for i, line in enumerate(input_file):
 			row = []
 			for j in range(len(line)):
@@ -55,36 +56,45 @@ def Equals(list1, list2):
 			return False
 	return True
 
-def closestPathDot(state):
-	global visited
-	frontier = [state]
-	tempVisited = list(visited)
-	visited = []
-	numGoals = len(state.dots)
-	frontier = transition(state,frontier,Strategy.BFS)
-	pathLength = 0
-	while(len(frontier)>0):
-		node = searchStrategy(frontier,Strategy.BFS)
-		pathLength+=1
-		if(len(node.dots)<numGoals):
-			visited = list(tempVisited)
-			return pathLength
-		else:
-			frontier = transition(node,frontier,Strategy.BFS)
 
-def manhattanHeuristic(state):
-	heuristic = 0
-	coords = state.agentPosition
-	dot = state.dots[0]
-	if(len(dot)==0):
-		heuristic = 0
-	else:
-		goal_x = dot[0]
-		goal_y = dot[1]
-		state_x = coords[0]
-		state_y = coords[1]
-		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
-	return heuristic
+
+def populateGoalCostMap():
+	global visited
+	PathCosts
+	for i in range(len(maze)):
+		for j in range(len(maze[i])):
+			if maze[i][j]:
+				minPathCost = 9999999
+				PathCosts[(i,j)]=[None]*2
+				PathCosts[(i,j)][0]={}
+				PathCosts[(i,j)][1]=(0,0)
+				for goal in start.dots:
+					visited = []
+					if (i,j)==goal:
+						PathCosts[(i,j)][1]=(i,j)
+						PathCosts[(i,j)][0][goal]=0
+					else:
+						state = State((i,j),[goal],0,0)
+						frontier = [state]
+						frontier = transition(state,frontier,Strategy.BFS)
+						while(len(frontier)>0):
+
+							node = searchStrategy(frontier,Strategy.BFS)
+							if len(node.dots)==0:
+								# print i,j,"hi"
+								cost = node.pathCostSoFar
+								if cost < minPathCost:
+									PathCosts[(i,j)][1]=node.agentPosition
+									# print PathCosts[(i,j)]
+									minPathCost=cost
+								PathCosts[(i,j)][0][goal]=cost
+								break
+							else:
+								frontier = transition(node,frontier,Strategy.BFS)
+				# print i,j,PathCosts[(i,j)]
+	visited = []
+
+
 
 #sets heuristic as the manhattan distance to the center of the 
 #average dots coordinate. Attempt 1
@@ -106,6 +116,24 @@ def multipleDotAverage(state):
 		goal_y/=numDots
 		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
 	return heuristic
+
+
+
+def manhattanHeuristic(state):
+	heuristic = 0
+	coords = state.agentPosition
+	dot = state.dots[0]
+	if(len(dot)==0):
+		heuristic = 0
+	else:
+		goal_x = dot[0]
+		goal_y = dot[1]
+		state_x = coords[0]
+		state_y = coords[1]
+		heuristic = abs(goal_y-state_y)+abs(goal_x-state_x)
+	return heuristic
+
+
 
 #Attempt 2
 def multipleDotClosestDot(state):
@@ -129,33 +157,67 @@ def multipleDotClosestDot(state):
 		heuristic = minDistance
 	return heuristic
 
+
+#Attempt 4: Take the average path length from each dot to every other dot * number of dots
+def averagePathLength(state):
+	numDots = len(state.dots)
+	averagePathLength = 0
+	for dot1 in state.dots:
+		for dot2 in state.dots:
+			# averagePathLength += PathCosts[dot1][0][dot2]
+			xdiff = abs(dot2[0]-dot1[1])
+			ydiff = abs(dot2[1]-dot1[1])
+			averagePathLength+=xdiff+ydiff
+	averagePathLength = averagePathLength / (numDots)
+	return averagePathLength
+
+#Returns the path length to the nearest goal of passed in state
+def closestPathDot(state):
+	coords = state.agentPosition
+	if coords in PathCosts:
+		bestGoalCoord = PathCosts[coords][1]
+		if bestGoalCoord in state.dots:
+			return PathCosts[coords][0][bestGoalCoord]
+		goalCoords = PathCosts[coords][0].keys()
+		minPath = PathCosts[coords][0][goalCoords[0]]
+		for goalCoord in goalCoords:
+			currPath = PathCosts[coords][0][goalCoord]
+			if currPath < minPath:
+				minPath = currPath
+				PathCosts[coords][1]=goalCoord
+		# print "start: ",coords, "end: " ,PathCosts[coords][1], "path cost: ", minPath
+		return minPath
+	else:
+		print "wtf"
+		return 0
+
 # Attempt 3
-def shortestPathDot(state):
+def finalHeuristic(state):
 	heuristic = 0
 	coords = state.agentPosition
 	numDots = len(state.dots)
 	if(numDots==0 or coords == state.dots[0]):
 		heuristic = 0
 	else:
-		heuristic = closestPathDot(state)
+		heuristic = closestPathDot(state) + averagePathLength(state)
 	return heuristic
+
+
 
 #Takes in a State, creates all of the reachable neighbor States and 
 #assigns s as their parent. Returns a list of these states
 def transition(state,frontier,strategy):
 	frontier.remove(state)
 	visited.append(state)
-
 	coords = state.agentPosition
 	x = coords[0]
 	y = coords[1]
-
+	removeDots(state,x,y)
 	#always inside walls so dont need to check id in bounds
 	if(maze[x+1][y]):
 		newState = State((x+1,y),state.dots,state,state.pathCostSoFar+1)
 		if(strategy==Strategy.Greedy or strategy==Strategy.Astar):
-			newState.heuristic = shortestPathDot(newState)
-		removeDots(newState,x+1,y)
+			newState.heuristic = finalHeuristic(newState)
 		shouldAdd = True
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and Equals(visitedState.dots, newState.dots):
@@ -173,8 +235,7 @@ def transition(state,frontier,strategy):
 	if(maze[x-1][y]):
 		newState = State((x-1,y),state.dots,state,state.pathCostSoFar+1)
 		if(strategy==Strategy.Greedy or strategy==Strategy.Astar):
-			newState.heuristic = shortestPathDot(newState)
-		removeDots(newState,x-1,y)
+			newState.heuristic = finalHeuristic(newState)
 		shouldAdd = True
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and Equals(visitedState.dots, newState.dots):
@@ -192,8 +253,7 @@ def transition(state,frontier,strategy):
 	if(maze[x][y+1]):
 		newState = State((x,y+1),state.dots,state,state.pathCostSoFar+1)
 		if(strategy==Strategy.Greedy or strategy==Strategy.Astar):
-			newState.heuristic = shortestPathDot(newState)
-		removeDots(newState,x,y+1)
+			newState.heuristic = finalHeuristic(newState)
 		shouldAdd = True
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and Equals(visitedState.dots, newState.dots):
@@ -211,8 +271,7 @@ def transition(state,frontier,strategy):
 	if(maze[x][y-1]):
 		newState = State((x,y-1),state.dots,state,state.pathCostSoFar+1)
 		if(strategy==Strategy.Greedy or strategy==Strategy.Astar):
-			newState.heuristic = shortestPathDot(newState)
-		removeDots(newState,x,y-1)
+			newState.heuristic = finalHeuristic(newState)
 		shouldAdd = True
 		for visitedState in visited:
 			if visitedState.agentPosition == newState.agentPosition and Equals(visitedState.dots, newState.dots):
@@ -228,6 +287,7 @@ def transition(state,frontier,strategy):
 			frontier.append(newState)
 
 	return frontier
+
 
 #Takes in a list of states and a strategy, returns the next state to 
 #explore based on that strategy
@@ -272,10 +332,6 @@ def printSolutionMaze(endNode):
 def printSolutionSearch(endNode):
 	pathCounter = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
-	#get how many dots there are
-	#work way back and pace dots
-	#???
-	#profit
 
 	numdots = len(start.dots)
 
@@ -301,7 +357,9 @@ def printSolutionSearch(endNode):
 
 def treeSearch(strategy):
 	global start
-	start.heuristic = shortestPathDot(start)
+	if strategy==Strategy.Astar or strategy==Strategy.Greedy:
+		populateGoalCostMap()
+		start.heuristic = finalHeuristic(start)
 	frontier = [start]
 	frontier = transition(start,frontier,strategy)
 	while(len(frontier)>0):
